@@ -346,7 +346,10 @@ def text_rank (path):
     """
     run the TextRank algorithm
     """
-    graph = build_graph(json_iter(path))
+    if isinstance(path, str):
+        path = json_iter(path)
+
+    graph = build_graph(path)
     ranks = nx.pagerank(graph)
 
     return graph, ranks
@@ -444,7 +447,7 @@ def collect_keyword (sent, ranks, stopwords):
 
 
 def find_entity (sent, ranks, ent, i):
-    if i >= len(sent):
+    if i + len(ent) > len(sent):
         return None, None
     else:
         for j in iter(range(0, len(ent))):
@@ -709,13 +712,15 @@ def limit_keyphrases (path, phrase_limit=20):
     rank_thresh = None
 
     if isinstance(path, str):
-        lex = []
+        path = json_iter(path)
 
-        for meta in json_iter(path):
+    lex = []
+    for meta in path:
+        if not isinstance(meta, RankedLexeme):
             rl = RankedLexeme(**meta)
-            lex.append(rl)
-    else:
-        lex = path
+        else:
+            rl = meta
+        lex.append(rl)
 
     if len(lex) > 0:
         rank_thresh = statistics.mean([rl.rank for rl in lex])
