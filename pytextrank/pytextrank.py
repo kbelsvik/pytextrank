@@ -394,6 +394,8 @@ def load_stopwords (stop_file):
 
 
 def find_chunk_sub (phrase, np, i):
+    if i + len(np) > len(phrase):
+        return None
     for j in iter(range(0, len(np))):
         p = phrase[i + j]
 
